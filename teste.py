@@ -5,7 +5,6 @@ import json
 from tkinter import scrolledtext, messagebox
 from tkinter import simpledialog
 
-
 # Define o arquivo do banco de dados SQLite
 DATABASE_FILE = "chatbot_db.sqlite"
 dados_json = "chatbot_data.json"
@@ -67,6 +66,7 @@ def send_message(event=None):
         chatbox.config(state=tk.DISABLED)
         user_entry.delete(0, tk.END)
 
+
 def clear_chat():
     chatbox.config(state=tk.NORMAL)
     chatbox.delete(1.0, tk.END)
@@ -112,7 +112,7 @@ def main():
     chatbox.pack()
 
     user_entry = tk.Entry(root, width=50)
-    user_entry.pack()
+    user_entry.pack(pady=10)
     user_entry.focus_set()
 
     # Call the send_message function when the Return key is pressed
@@ -121,12 +121,12 @@ def main():
     clear_button = tk.Button(root, text="Limpar Chat", command=clear_chat)
     send_button = tk.Button(root, text="Enviar", command=send_message)
 
-    clear_button.pack(side=tk.LEFT, padx=10)
-    send_button.pack(side=tk.LEFT, padx=100)
+    clear_button.pack(side=tk.LEFT, padx=10, pady=10)
+    send_button.pack(side=tk.LEFT, padx=100, pady=10)
 
     # Botão para inserir dados
     insert_button = tk.Button(root, text="Inserir Dados", command=inserir_dados_interface)
-    insert_button.pack(side=tk.RIGHT, padx=10)
+    insert_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
     root.mainloop()
 
