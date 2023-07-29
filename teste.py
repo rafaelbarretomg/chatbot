@@ -1,24 +1,47 @@
 import difflib
-import json
+import sqlite3
 import tkinter as tk
+import json
 from tkinter import scrolledtext
+from tkinter import simpledialog
 
-DATA_FILE = "chatbot_data.json"
+# Define o arquivo do banco de dados SQLite
+DATABASE_FILE = "chatbot_db.sqlite"
+dados_json = "chatbot_data.json"
+
+
+def criar_tabela():
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS perguntas_respostas (
+            pergunta TEXT NOT NULL,
+            resposta TEXT NOT NULL
+        )
+    """)
+    conn.commit()
+    conn.close()
+
 
 def load_data():
     try:
-        with open(DATA_FILE, "r", encoding="utf-8") as file:
-            data = json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
+        conn = sqlite3.connect(DATABASE_FILE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT pergunta, resposta FROM perguntas_respostas")
+        data = {pergunta: resposta for pergunta, resposta in cursor.fetchall()}
+        conn.close()
+    except (sqlite3.Error, FileNotFoundError):
         data = {}
 
     return data
+
 
 def get_closest_match(user_input, responses):
     closest_match = difflib.get_close_matches(user_input, responses.keys(), n=1, cutoff=0.5)
     if closest_match:
         return responses[closest_match[0]]
     return None
+
 
 def chatbot_response(user_input, responses):
     user_input = user_input.lower()
@@ -32,7 +55,8 @@ def chatbot_response(user_input, responses):
         else:
             return "Desculpe, não entendi. Pode reformular a pergunta?"
 
-def send_message(event=None):
+
+def send_message():
     user_input = user_entry.get()
     if user_input.strip():
         response = chatbot_response(user_input, responses)
@@ -42,12 +66,41 @@ def send_message(event=None):
         chatbox.config(state=tk.DISABLED)
         user_entry.delete(0, tk.END)
 
+
 def clear_chat():
     chatbox.config(state=tk.NORMAL)
     chatbox.delete(1.0, tk.END)
     chatbox.config(state=tk.DISABLED)
 
+
+def inserir_dados(pergunta, resposta):
+    conn = sqlite3.connect(DATABASE_FILE)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO perguntas_respostas (pergunta, resposta) VALUES (?, ?)", (pergunta, resposta))
+    conn.commit()
+    conn.close()
+
+
+def inserir_dados_interface():
+    pergunta = simpledialog.askstring("Inserir Pergunta", "Digite a pergunta:")
+    if pergunta:
+        resposta = simpledialog.askstring("Inserir Resposta", "Digite a resposta:")
+        if resposta:
+            inserir_dados(pergunta, resposta)
+            tk.messagebox.showinfo("Sucesso", "Dados inseridos com sucesso!")
+
+
+def inserir_json_dados(arquivo_json):
+    with open(arquivo_json, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    for pergunta, resposta in data.items():
+        inserir_dados(pergunta, resposta)
+
+
 def main():
+    criar_tabela()
+    # inserir_json_dados(dados_json) # inserir dados a partir do json
     global responses, chatbox, user_entry  # Declare global variables
     responses = load_data()
 
@@ -71,7 +124,12 @@ def main():
     clear_button.pack(side=tk.LEFT, padx=100)
     send_button.pack(side=tk.LEFT, padx=5)
 
+    # Botão para inserir dados
+    insert_button = tk.Button(root, text="Inserir Dados", command=inserir_dados_interface)
+    insert_button.pack(side=tk.LEFT, padx=5)
+
     root.mainloop()
+
 
 if __name__ == "__main__":
     main()
