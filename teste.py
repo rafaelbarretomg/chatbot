@@ -2,8 +2,9 @@ import difflib
 import sqlite3
 import tkinter as tk
 import json
-from tkinter import scrolledtext
+from tkinter import scrolledtext, messagebox
 from tkinter import simpledialog
+
 
 # Define o arquivo do banco de dados SQLite
 DATABASE_FILE = "chatbot_db.sqlite"
@@ -56,7 +57,7 @@ def chatbot_response(user_input, responses):
             return "Desculpe, não entendi. Pode reformular a pergunta?"
 
 
-def send_message():
+def send_message(event=None):
     user_input = user_entry.get()
     if user_input.strip():
         response = chatbot_response(user_input, responses)
@@ -65,7 +66,6 @@ def send_message():
         chatbox.insert(tk.END, "Chatbot: " + response + "\n")
         chatbox.config(state=tk.DISABLED)
         user_entry.delete(0, tk.END)
-
 
 def clear_chat():
     chatbox.config(state=tk.NORMAL)
@@ -121,12 +121,12 @@ def main():
     clear_button = tk.Button(root, text="Limpar Chat", command=clear_chat)
     send_button = tk.Button(root, text="Enviar", command=send_message)
 
-    clear_button.pack(side=tk.LEFT, padx=100)
-    send_button.pack(side=tk.LEFT, padx=5)
+    clear_button.pack(side=tk.LEFT, padx=10)
+    send_button.pack(side=tk.LEFT, padx=100)
 
     # Botão para inserir dados
     insert_button = tk.Button(root, text="Inserir Dados", command=inserir_dados_interface)
-    insert_button.pack(side=tk.LEFT, padx=5)
+    insert_button.pack(side=tk.RIGHT, padx=10)
 
     root.mainloop()
 
