@@ -1,30 +1,9 @@
 import difflib
 import json
-import sqlite3
 import tkinter as tk
 from tkinter import scrolledtext
 
-DATABASE_FILE = "chatbot_database.db"
 DATA_FILE = "chatbot_data.json"
-
-def create_database():
-    connection = sqlite3.connect(DATABASE_FILE)
-    cursor = connection.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS messages
-                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                       sender TEXT NOT NULL,
-                       content TEXT NOT NULL)''')
-    connection.commit()
-    connection.close()
-
-def insert_message(sender, content):
-    connection = sqlite3.connect(DATABASE_FILE)
-    cursor = connection.cursor()
-    cursor.execute("INSERT INTO messages (sender, content) VALUES (?, ?)", (sender, content))
-    connection.commit()
-    connection.close()
-
-
 
 def load_data():
     try:
@@ -35,17 +14,11 @@ def load_data():
 
     return data
 
-def save_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as file:
-        json.dump(data, file, indent=4, ensure_ascii=False)
-
-
 def get_closest_match(user_input, responses):
     closest_match = difflib.get_close_matches(user_input, responses.keys(), n=1, cutoff=0.5)
     if closest_match:
         return responses[closest_match[0]]
     return None
-
 
 def chatbot_response(user_input, responses):
     user_input = user_input.lower()
@@ -59,15 +32,10 @@ def chatbot_response(user_input, responses):
         else:
             return "Desculpe, não entendi. Pode reformular a pergunta?"
 
-
-
 def send_message(event=None):
     user_input = user_entry.get()
     if user_input.strip():
-        insert_message("Usuário", user_input)  # Inserir mensagem do usuário no banco de dados
-        response = chatbot_response(user_input, responses)  # Pass the responses dictionary here
-        insert_message("Chatbot", response)  # Inserir resposta do chatbot no banco de dados
-
+        response = chatbot_response(user_input, responses)
         chatbox.config(state=tk.NORMAL)
         chatbox.insert(tk.END, "Você: " + user_input + "\n")
         chatbox.insert(tk.END, "Chatbot: " + response + "\n")
@@ -80,7 +48,6 @@ def clear_chat():
     chatbox.config(state=tk.DISABLED)
 
 def main():
-    create_database()
     global responses, chatbox, user_entry  # Declare global variables
     responses = load_data()
 
