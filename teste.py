@@ -66,6 +66,8 @@ def send_message(event=None):
         chatbox.insert(tk.END, "-" * 50 + "\n", "separator")  # Add a separator line
         chatbox.config(state=tk.DISABLED)
         user_entry.delete(0, tk.END)
+
+
 def clear_chat():
     chatbox.config(state=tk.NORMAL)
     chatbox.delete(1.0, tk.END)
@@ -109,7 +111,7 @@ def main():
     chatbox = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=50, height=20)
     chatbox.config(state=tk.DISABLED)
     chatbox.pack()
-    chatbox.tag_configure("user", foreground="blue",)
+    chatbox.tag_configure("user", foreground="blue", )
     chatbox.tag_configure("bot", foreground="red")
     chatbox.tag_configure("separator", foreground="gray")
 
